@@ -1,38 +1,31 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-  <title>Flipbook Demo</title>
-
-  <!-- STYLE -->
-  <link rel="stylesheet" href="./css/style.css">
-
-  <!-- PDF.JS GLOBAL (CDN) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
-  <script>
-    // PDF.js worker
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js";
-  </script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Flipbook Test</title>
+<link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
 
-  <div id="toolbar">
-    <button id="prev">◀</button>
-    <span id="pageInfo">0 / 0</span>
-    <button id="next">▶</button>
+<div id="toolbar">
+  <button id="prev">◀</button>
+  <span id="pageInfo">0 / 0</span>
+  <button id="next">▶</button>
 
-    <button id="zoomOut">−</button>
-    <button id="zoomIn">+</button>
+  <button id="zoomOut">−</button>
+  <button id="zoomIn">+</button>
 
-    <button id="soundToggle">🔊</button>
-  </div>
+  <button id="soundToggle">🔊</button>
+</div>
 
-  <div id="book"></div>
+<div id="book"></div>
 
-  <!-- CLASSIC SCRIPT -->
-  <script src="./js/flipbook.js"></script>
+<!-- PDF.js (legacy build) -->
+<script src="./js/pdf.mjs" type="module"></script>
+<script src="./js/pdf.worker.mjs" type="module"></script>
 
+<!-- Flipbook script -->
+<script src="./js/flipbook.js"></script>
 </body>
 </html>
