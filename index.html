@@ -13,9 +13,7 @@
   <!-- TOOLBAR -->
   <div id="toolbar">
     <button id="prev">◀</button>
-
     <span id="pageInfo">1 / 1</span>
-
     <button id="next">▶</button>
 
     <button id="zoomOut">−</button>
@@ -27,17 +25,14 @@
   <!-- FLIPBOOK -->
   <div id="book"></div>
 
-  <!-- PDF.JS -->
+  <!-- PDF.JS MODULE (GLOBAL'e bağlanıyor) -->
   <script type="module">
     import * as pdfjsLib from './js/pdf.mjs';
-
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      './js/pdf.worker.mjs';
-
+    pdfjsLib.GlobalWorkerOptions.workerSrc = './js/pdf.worker.mjs';
     window.pdfjsLib = pdfjsLib;
   </script>
 
-  <!-- FLIPBOOK LOGIC -->
+  <!-- CLASSIC SCRIPT -->
   <script src="./js/flipbook.js"></script>
 
 </body>
