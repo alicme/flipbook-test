@@ -1,108 +1,128 @@
-import * as pdfjsLib from "./pdf.mjs";
+const pdfUrl = './pdf/deneme-flipbook.pdf';
+const container = document.getElementById('book');
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = "./pdf.worker.mjs";
-
-const pdfUrl = "./pdf/deneme-flipbook.pdf";
+const prevBtn = document.getElementById('prev');
+const nextBtn = document.getElementById('next');
+const zoomInBtn = document.getElementById('zoomIn');
+const zoomOutBtn = document.getElementById('zoomOut');
+const pageInfo = document.getElementById('pageInfo');
+const soundToggle = document.getElementById('soundToggle');
 
 let pdfDoc = null;
-let pageNum = 1;
+let currentPage = 1;
 let scale = 1.2;
-let soundOn = true;
 
-const viewer = document.getElementById("viewer");
-const pageInfo = document.getElementById("pageInfo");
-const flipSound = document.getElementById("flipSound");
+let soundEnabled = true;
+const flipSound = new Audio('./sound/page-flip.mp3');
 
-function isLandscape() {
-  return window.innerWidth > window.innerHeight;
-}
+/* ---------------- PDF LOAD ---------------- */
 
-function playSound() {
-  if (soundOn) {
-    flipSound.currentTime = 0;
-    flipSound.play();
-  }
-}
+pdfjsLib.getDocument(pdfUrl).promise
+  .then(pdf => {
+    pdfDoc = pdf;
+    renderPage(currentPage);
+    updatePageInfo();
+  })
+  .catch(err => {
+    console.error('PDF yüklenemedi:', err);
+  });
 
-async function render() {
-  viewer.innerHTML = "";
+/* ---------------- RENDER ---------------- */
 
-  const pagesToRender = isLandscape() ? 2 : 1;
+function renderPage(num) {
+  pdfDoc.getPage(num).then(page => {
+    container.innerHTML = '';
 
-  for (let i = 0; i < pagesToRender; i++) {
-    const pageIndex = pageNum + i;
-    if (pageIndex > pdfDoc.numPages) break;
-
-    const page = await pdfDoc.getPage(pageIndex);
     const viewport = page.getViewport({ scale });
-
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
 
     canvas.width = viewport.width;
     canvas.height = viewport.height;
 
-    await page.render({ canvasContext: ctx, viewport }).promise;
-    viewer.appendChild(canvas);
-  }
+    container.appendChild(canvas);
 
-  pageInfo.textContent = `Sayfa ${pageNum} / ${pdfDoc.numPages}`;
+    page.render({
+      canvasContext: ctx,
+      viewport
+    });
+  });
 }
 
-function nextPage() {
-  if (pageNum < pdfDoc.numPages) {
-    pageNum += isLandscape() ? 2 : 1;
-    playSound();
-    render();
-  }
+/* ---------------- UI ---------------- */
+
+function updatePageInfo() {
+  pageInfo.textContent = `${currentPage} / ${pdfDoc.numPages}`;
 }
 
-function prevPage() {
-  if (pageNum > 1) {
-    pageNum -= isLandscape() ? 2 : 1;
-    if (pageNum < 1) pageNum = 1;
-    playSound();
-    render();
-  }
+function playSound() {
+  if (!soundEnabled) return;
+  flipSound.currentTime = 0;
+  flipSound.play().catch(() => {});
 }
 
-/* Events */
-document.getElementById("next").onclick = nextPage;
-document.getElementById("prev").onclick = prevPage;
+/* ---------------- BUTTONS ---------------- */
 
-document.getElementById("zoomIn").onclick = () => {
-  scale += 0.1;
-  render();
+prevBtn.onclick = () => {
+  if (currentPage <= 1) return;
+  currentPage--;
+  playSound();
+  renderPage(currentPage);
+  updatePageInfo();
 };
 
-document.getElementById("zoomOut").onclick = () => {
-  scale = Math.max(0.5, scale - 0.1);
-  render();
+nextBtn.onclick = () => {
+  if (currentPage >= pdfDoc.numPages) return;
+  currentPage++;
+  playSound();
+  renderPage(currentPage);
+  updatePageInfo();
 };
 
-document.getElementById("soundToggle").onclick = (e) => {
-  soundOn = !soundOn;
-  e.target.textContent = soundOn ? "🔊" : "🔇";
+zoomInBtn.onclick = () => {
+  scale += 0.2;
+  renderPage(currentPage);
 };
 
-/* Swipe */
+zoomOutBtn.onclick = () => {
+  scale = Math.max(0.6, scale - 0.2);
+  renderPage(currentPage);
+};
+
+soundToggle.onclick = () => {
+  soundEnabled = !soundEnabled;
+  soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
+};
+
+/* ---------------- MOUSE DRAG ---------------- */
+
+let isDragging = false;
+let startX = 0;
+
+container.addEventListener('mousedown', e => {
+  isDragging = true;
+  startX = e.clientX;
+});
+
+window.addEventListener('mouseup', e => {
+  if (!isDragging) return;
+  isDragging = false;
+
+  const diff = e.clientX - startX;
+  if (diff > 80) prevBtn.click();
+  if (diff < -80) nextBtn.click();
+});
+
+/* ---------------- TOUCH SWIPE ---------------- */
+
 let touchStartX = 0;
-viewer.addEventListener("touchstart", e => {
-  touchStartX = e.changedTouches[0].screenX;
+
+container.addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
 });
 
-viewer.addEventListener("touchend", e => {
-  const diff = e.changedTouches[0].screenX - touchStartX;
-  if (Math.abs(diff) > 50) {
-    diff < 0 ? nextPage() : prevPage();
-  }
+container.addEventListener('touchend', e => {
+  const diff = e.changedTouches[0].clientX - touchStartX;
+  if (diff > 60) prevBtn.click();
+  if (diff < -60) nextBtn.click();
 });
-
-window.addEventListener("resize", render);
-
-/* Init */
-pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
-  pdfDoc = pdf;
-  render();
-});
-
