@@ -1,41 +1,57 @@
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  background: #2b2b2b;
-  font-family: Arial, sans-serif;
+* {
+  box-sizing: border-box;
 }
 
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #2b2b2b;
+  color: #fff;
+}
+
+/* TOOLBAR */
 #toolbar {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  padding: 10px;
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
   background: rgba(0,0,0,0.7);
-  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  display: flex;
+  gap: 6px;
+  z-index: 10;
 }
 
 #toolbar button {
+  background: #444;
+  color: #fff;
+  border: none;
   padding: 6px 10px;
+  border-radius: 4px;
   cursor: pointer;
 }
 
-#viewerWrapper {
-  height: calc(100% - 50px);
-  overflow: hidden;
+#toolbar button:hover {
+  background: #666;
 }
 
-#viewer {
+#pageInfo {
+  padding: 6px 10px;
+}
+
+/* BOOK */
+#book {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%;
-  touch-action: pan-y;
+  height: 100vh;
+  padding-top: 60px;
 }
 
 canvas {
-  margin: 0 5px;
-  background: white;
-  box-shadow: 0 0 15px rgba(0,0,0,0.6);
+  max-width: 95vw;
+  max-height: 90vh;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  background: #fff;
 }
-
