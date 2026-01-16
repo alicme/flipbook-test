@@ -10,8 +10,8 @@ const zoomOutBtn = document.getElementById("zoomOut");
 const pageInfo = document.getElementById("pageInfo");
 const soundToggle = document.getElementById("soundToggle");
 
-// Ses
-let flipSound = new Audio("./sound/page-flip.mp3");
+// SES
+let flipSound = new Audio("./sound/page-flip.mp3"); // yoksa hata vermez
 let soundEnabled = true;
 
 // Flipbook ayarları
@@ -39,6 +39,7 @@ function renderPage(num) {
       canvasContext: context,
       viewport: viewport
     };
+
     const renderTask = page.render(renderContext);
 
     renderTask.promise.then(function() {
@@ -49,10 +50,8 @@ function renderPage(num) {
       }
     });
 
-    // Sayfa bilgisi
     pageInfo.textContent = `${num} / ${pdfDoc.numPages}`;
 
-    // Flip sesi
     if (soundEnabled) flipSound.play();
   });
 }
@@ -113,7 +112,7 @@ container.addEventListener("touchend", (e) => {
   if (diff < -30) onNextPage();
 });
 
-// PDF LOAD
+// PDF YÜKLEME
 pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
   pdfDoc = pdf;
   currentPage = 1;
