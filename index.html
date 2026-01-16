@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Flipbook Test</title>
-<link rel="stylesheet" href="./css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flipbook Test</title>
+  <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
 
 <div id="toolbar">
   <button id="prev">◀</button>
-  <span id="pageInfo">0 / 0</span>
+  <span id="pageInfo"></span>
   <button id="next">▶</button>
   <button id="zoomOut">−</button>
   <button id="zoomIn">+</button>
@@ -19,11 +19,15 @@
 
 <div id="book"></div>
 
-<!-- PDF.js Legacy -->
-<script src="./js/pdf.js"></script>
-<script src="./js/pdf.worker.js"></script>
+<!-- PDF.js module -->
+<script type="module">
+  import * as pdfjsLib from './js/pdf.mjs';
+  pdfjsLib.GlobalWorkerOptions.workerSrc = './js/pdf.worker.mjs';
+  window.pdfjsLib = pdfjsLib;  // flipbook.js kullanacak
+</script>
 
-<!-- Flipbook -->
+<!-- Flipbook script -->
 <script src="./js/flipbook.js"></script>
+
 </body>
 </html>
