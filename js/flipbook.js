@@ -1,69 +1,73 @@
-const pdfUrl = './pdf/deneme-flipbook.pdf';
-const container = document.getElementById('book');
+// ===============================
+// PDF FLIPBOOK - FINAL VERSION
+// ===============================
 
-const prevBtn = document.getElementById('prev');
-const nextBtn = document.getElementById('next');
-const zoomInBtn = document.getElementById('zoomIn');
-const zoomOutBtn = document.getElementById('zoomOut');
-const pageInfo = document.getElementById('pageInfo');
-const soundToggle = document.getElementById('soundToggle');
+// PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
+// PDF yolu
+const pdfUrl = "./pdf/deneme-flipbook.pdf";
+
+// DOM
+const container = document.getElementById("book");
+const prevBtn = document.getElementById("prev");
+const nextBtn = document.getElementById("next");
+const zoomInBtn = document.getElementById("zoomIn");
+const zoomOutBtn = document.getElementById("zoomOut");
+const pageInfo = document.getElementById("pageInfo");
+
+// Ayarlar
 let pdfDoc = null;
 let currentPage = 1;
-let scale = 1.2;
+let scale = 1.4;
 
-let soundEnabled = true;
-const flipSound = new Audio('./sound/page-flip.mp3');
+// ===============================
+// PDF YÜKLE
+// ===============================
+pdfjsLib.getDocument(pdfUrl).promise.then((pdf) => {
+  pdfDoc = pdf;
+  renderPage(currentPage);
+  updatePageInfo();
+});
 
-/* ---------- PDF LOAD ---------- */
-
-pdfjsLib.getDocument(pdfUrl).promise
-  .then(pdf => {
-    pdfDoc = pdf;
-    renderPage(currentPage);
-    updatePageInfo();
-  })
-  .catch(err => {
-    console.error('PDF yüklenemedi:', err);
-  });
-
-/* ---------- RENDER ---------- */
-
+// ===============================
+// SAYFA ÇİZ
+// ===============================
 function renderPage(num) {
-  pdfDoc.getPage(num).then(page => {
-    container.innerHTML = '';
+  container.innerHTML = "";
 
+  pdfDoc.getPage(num).then((page) => {
     const viewport = page.getViewport({ scale });
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
 
     canvas.width = viewport.width;
     canvas.height = viewport.height;
+    canvas.className = "page";
 
     container.appendChild(canvas);
 
-    page.render({ canvasContext: ctx, viewport });
+    page.render({
+      canvasContext: ctx,
+      viewport: viewport,
+    });
   });
 }
 
-/* ---------- UI ---------- */
-
+// ===============================
+// SAYFA BİLGİ
+// ===============================
 function updatePageInfo() {
   pageInfo.textContent = `${currentPage} / ${pdfDoc.numPages}`;
 }
 
-function playSound() {
-  if (!soundEnabled) return;
-  flipSound.currentTime = 0;
-  flipSound.play().catch(() => {});
-}
-
-/* ---------- BUTTONS ---------- */
-
+// ===============================
+// BUTONLAR
+// ===============================
 prevBtn.onclick = () => {
   if (currentPage <= 1) return;
   currentPage--;
-  playSound();
   renderPage(currentPage);
   updatePageInfo();
 };
@@ -71,7 +75,6 @@ prevBtn.onclick = () => {
 nextBtn.onclick = () => {
   if (currentPage >= pdfDoc.numPages) return;
   currentPage++;
-  playSound();
   renderPage(currentPage);
   updatePageInfo();
 };
@@ -82,32 +85,7 @@ zoomInBtn.onclick = () => {
 };
 
 zoomOutBtn.onclick = () => {
-  scale = Math.max(0.6, scale - 0.2);
+  if (scale <= 0.6) return;
+  scale -= 0.2;
   renderPage(currentPage);
 };
-
-soundToggle.onclick = () => {
-  soundEnabled = !soundEnabled;
-  soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
-};
-
-/* ---------- DRAG / SWIPE ---------- */
-
-let startX = 0;
-
-container.addEventListener('mousedown', e => startX = e.clientX);
-container.addEventListener('mouseup', e => {
-  const diff = e.clientX - startX;
-  if (diff > 80) prevBtn.click();
-  if (diff < -80) nextBtn.click();
-});
-
-container.addEventListener('touchstart', e => {
-  startX = e.touches[0].clientX;
-});
-
-container.addEventListener('touchend', e => {
-  const diff = e.changedTouches[0].clientX - startX;
-  if (diff > 60) prevBtn.click();
-  if (diff < -60) nextBtn.click();
-});
