@@ -1,19 +1,25 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <title>Flipbook Test</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <title>Flipbook Demo</title>
+  
+  <!-- STYLE -->
+  <link rel="stylesheet" href="./css/style.css">
 
-  <link rel="stylesheet" href="css/style.css" />
+  <!-- PDF.JS (GLOBAL) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js";
+  </script>
 </head>
-
 <body>
 
-  <!-- TOOLBAR -->
   <div id="toolbar">
     <button id="prev">◀</button>
-    <span id="pageInfo">1 / 1</span>
+    <span id="pageInfo">0 / 0</span>
     <button id="next">▶</button>
 
     <button id="zoomOut">−</button>
@@ -22,20 +28,9 @@
     <button id="soundToggle">🔊</button>
   </div>
 
-  <!-- FLIPBOOK -->
   <div id="book"></div>
 
-  <!-- PDF.JS (GLOBAL) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
-<script>
-  pdfjsLib.GlobalWorkerOptions.workerSrc =
-    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js";
-</script>
-
-<!-- FLIPBOOK -->
-<script src="./js/flipbook.js"></script>
-
-
-
+  <!-- CLASSIC SCRIPT -->
+  <script src="./js/flipbook.js"></script>
 </body>
 </html>
