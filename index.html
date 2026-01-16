@@ -2,32 +2,43 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
+  <title>Flipbook Test</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PDF Flipbook</title>
 
   <link rel="stylesheet" href="css/style.css" />
 </head>
+
 <body>
 
-<div id="toolbar">
-  <button id="prev">◀</button>
-  <span id="pageInfo"></span>
-  <button id="next">▶</button>
+  <!-- TOOLBAR -->
+  <div id="toolbar">
+    <button id="prev">◀</button>
 
-  <button id="zoomOut">−</button>
-  <button id="zoomIn">+</button>
+    <span id="pageInfo">1 / 1</span>
 
-  <button id="soundToggle">🔊</button>
-</div>
+    <button id="next">▶</button>
 
-<div id="viewerWrapper">
-  <div id="viewer"></div>
-</div>
+    <button id="zoomOut">−</button>
+    <button id="zoomIn">+</button>
 
-<!-- Page flip sound -->
-<audio id="flipSound" src="sound/page-flip.mp3" preload="auto"></audio>
+    <button id="soundToggle">🔊</button>
+  </div>
 
-<script type="module" src="js/flipbook.js"></script>
+  <!-- FLIPBOOK -->
+  <div id="book"></div>
+
+  <!-- PDF.JS -->
+  <script type="module">
+    import * as pdfjsLib from './js/pdf.mjs';
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      './js/pdf.worker.mjs';
+
+    window.pdfjsLib = pdfjsLib;
+  </script>
+
+  <!-- FLIPBOOK LOGIC -->
+  <script src="./js/flipbook.js"></script>
+
 </body>
 </html>
-
