@@ -4,13 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
   <title>Flipbook Demo</title>
-  
+
   <!-- STYLE -->
   <link rel="stylesheet" href="./css/style.css">
 
-  <!-- PDF.JS (GLOBAL) -->
+  <!-- PDF.JS GLOBAL (CDN) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
   <script>
+    // PDF.js worker
     pdfjsLib.GlobalWorkerOptions.workerSrc =
       "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js";
   </script>
@@ -32,5 +33,6 @@
 
   <!-- CLASSIC SCRIPT -->
   <script src="./js/flipbook.js"></script>
+
 </body>
 </html>
