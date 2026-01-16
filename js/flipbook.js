@@ -1,91 +1,123 @@
-// ===============================
-// PDF FLIPBOOK - FINAL VERSION
-// ===============================
-
-// PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-
-// PDF yolu
+// PDF dosya yolu
 const pdfUrl = "./pdf/deneme-flipbook.pdf";
 
-// DOM
+// DOM ELEMENTLERİ
 const container = document.getElementById("book");
 const prevBtn = document.getElementById("prev");
 const nextBtn = document.getElementById("next");
 const zoomInBtn = document.getElementById("zoomIn");
 const zoomOutBtn = document.getElementById("zoomOut");
 const pageInfo = document.getElementById("pageInfo");
+const soundToggle = document.getElementById("soundToggle");
 
-// Ayarlar
+// Ses
+let flipSound = new Audio("./sound/page-flip.mp3");
+let soundEnabled = true;
+
+// Flipbook ayarları
 let pdfDoc = null;
 let currentPage = 1;
-let scale = 1.4;
+let scale = 1.2;
+let pageRendering = false;
+let pageNumPending = null;
 
-// ===============================
-// PDF YÜKLE
-// ===============================
-pdfjsLib.getDocument(pdfUrl).promise.then((pdf) => {
-  pdfDoc = pdf;
-  renderPage(currentPage);
-  updatePageInfo();
-});
-
-// ===============================
-// SAYFA ÇİZ
-// ===============================
+// SAYFA RENDER
 function renderPage(num) {
-  container.innerHTML = "";
-
-  pdfDoc.getPage(num).then((page) => {
-    const viewport = page.getViewport({ scale });
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-
-    canvas.width = viewport.width;
+  pageRendering = true;
+  pdfDoc.getPage(num).then(function(page) {
+    const viewport = page.getViewport({ scale: scale });
+    let canvas = container.querySelector("canvas");
+    if (!canvas) {
+      canvas = document.createElement("canvas");
+      container.appendChild(canvas);
+    }
+    const context = canvas.getContext("2d");
     canvas.height = viewport.height;
-    canvas.className = "page";
+    canvas.width = viewport.width;
 
-    container.appendChild(canvas);
+    const renderContext = {
+      canvasContext: context,
+      viewport: viewport
+    };
+    const renderTask = page.render(renderContext);
 
-    page.render({
-      canvasContext: ctx,
-      viewport: viewport,
+    renderTask.promise.then(function() {
+      pageRendering = false;
+      if (pageNumPending !== null) {
+        renderPage(pageNumPending);
+        pageNumPending = null;
+      }
     });
+
+    // Sayfa bilgisi
+    pageInfo.textContent = `${num} / ${pdfDoc.numPages}`;
+
+    // Flip sesi
+    if (soundEnabled) flipSound.play();
   });
 }
 
-// ===============================
-// SAYFA BİLGİ
-// ===============================
-function updatePageInfo() {
-  pageInfo.textContent = `${currentPage} / ${pdfDoc.numPages}`;
+function queueRenderPage(num) {
+  if (pageRendering) {
+    pageNumPending = num;
+  } else {
+    renderPage(num);
+  }
 }
 
-// ===============================
-// BUTONLAR
-// ===============================
-prevBtn.onclick = () => {
+// SAYFA GEÇİŞİ
+function onPrevPage() {
   if (currentPage <= 1) return;
   currentPage--;
-  renderPage(currentPage);
-  updatePageInfo();
-};
+  queueRenderPage(currentPage);
+}
 
-nextBtn.onclick = () => {
+function onNextPage() {
   if (currentPage >= pdfDoc.numPages) return;
   currentPage++;
-  renderPage(currentPage);
-  updatePageInfo();
-};
+  queueRenderPage(currentPage);
+}
 
-zoomInBtn.onclick = () => {
+// ZOOM
+function onZoomIn() {
   scale += 0.2;
-  renderPage(currentPage);
-};
+  queueRenderPage(currentPage);
+}
 
-zoomOutBtn.onclick = () => {
-  if (scale <= 0.6) return;
-  scale -= 0.2;
+function onZoomOut() {
+  scale = Math.max(0.2, scale - 0.2);
+  queueRenderPage(currentPage);
+}
+
+// SES TOGGLE
+function onSoundToggle() {
+  soundEnabled = !soundEnabled;
+  soundToggle.textContent = soundEnabled ? "🔊" : "🔇";
+}
+
+// EVENT LISTENER
+prevBtn.addEventListener("click", onPrevPage);
+nextBtn.addEventListener("click", onNextPage);
+zoomInBtn.addEventListener("click", onZoomIn);
+zoomOutBtn.addEventListener("click", onZoomOut);
+soundToggle.addEventListener("click", onSoundToggle);
+
+// MOBILE SWIPE
+let startX = 0;
+container.addEventListener("touchstart", (e) => {
+  startX = e.touches[0].clientX;
+});
+container.addEventListener("touchend", (e) => {
+  let diff = e.changedTouches[0].clientX - startX;
+  if (diff > 30) onPrevPage();
+  if (diff < -30) onNextPage();
+});
+
+// PDF LOAD
+pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
+  pdfDoc = pdf;
+  currentPage = 1;
   renderPage(currentPage);
-};
+}).catch(err => {
+  container.textContent = "PDF yüklenemedi: " + err.message;
+});
