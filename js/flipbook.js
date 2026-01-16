@@ -15,7 +15,7 @@ let scale = 1.2;
 let soundEnabled = true;
 const flipSound = new Audio('./sound/page-flip.mp3');
 
-/* ---------------- PDF LOAD ---------------- */
+/* ---------- PDF LOAD ---------- */
 
 pdfjsLib.getDocument(pdfUrl).promise
   .then(pdf => {
@@ -27,7 +27,7 @@ pdfjsLib.getDocument(pdfUrl).promise
     console.error('PDF yüklenemedi:', err);
   });
 
-/* ---------------- RENDER ---------------- */
+/* ---------- RENDER ---------- */
 
 function renderPage(num) {
   pdfDoc.getPage(num).then(page => {
@@ -42,14 +42,11 @@ function renderPage(num) {
 
     container.appendChild(canvas);
 
-    page.render({
-      canvasContext: ctx,
-      viewport
-    });
+    page.render({ canvasContext: ctx, viewport });
   });
 }
 
-/* ---------------- UI ---------------- */
+/* ---------- UI ---------- */
 
 function updatePageInfo() {
   pageInfo.textContent = `${currentPage} / ${pdfDoc.numPages}`;
@@ -61,7 +58,7 @@ function playSound() {
   flipSound.play().catch(() => {});
 }
 
-/* ---------------- BUTTONS ---------------- */
+/* ---------- BUTTONS ---------- */
 
 prevBtn.onclick = () => {
   if (currentPage <= 1) return;
@@ -94,35 +91,23 @@ soundToggle.onclick = () => {
   soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
 };
 
-/* ---------------- MOUSE DRAG ---------------- */
+/* ---------- DRAG / SWIPE ---------- */
 
-let isDragging = false;
 let startX = 0;
 
-container.addEventListener('mousedown', e => {
-  isDragging = true;
-  startX = e.clientX;
-});
-
-window.addEventListener('mouseup', e => {
-  if (!isDragging) return;
-  isDragging = false;
-
+container.addEventListener('mousedown', e => startX = e.clientX);
+container.addEventListener('mouseup', e => {
   const diff = e.clientX - startX;
   if (diff > 80) prevBtn.click();
   if (diff < -80) nextBtn.click();
 });
 
-/* ---------------- TOUCH SWIPE ---------------- */
-
-let touchStartX = 0;
-
 container.addEventListener('touchstart', e => {
-  touchStartX = e.touches[0].clientX;
+  startX = e.touches[0].clientX;
 });
 
 container.addEventListener('touchend', e => {
-  const diff = e.changedTouches[0].clientX - touchStartX;
+  const diff = e.changedTouches[0].clientX - startX;
   if (diff > 60) prevBtn.click();
   if (diff < -60) nextBtn.click();
 });
